@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -8,6 +9,9 @@ from sqlalchemy.orm import Session
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
+
+os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-tests")
 
 from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.main import app  # noqa: E402
@@ -21,6 +25,7 @@ def db_engine():
     """
     Base.metadata.create_all(bind=engine)
     yield engine
+    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(autouse=True)
