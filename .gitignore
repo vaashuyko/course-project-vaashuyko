@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyc
 *.so
 *.egg-info/
 dist/
@@ -14,3 +15,10 @@ build/
 .idea/
 # OS
 .DS_Store
+# other
+.git
+tests
+.github
+*.db
+.idea
+.vscode
