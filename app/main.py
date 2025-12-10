@@ -1,57 +1,65 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from __future__ import annotations
 
-app = FastAPI(title="SecDev Course App", version="0.1.0")
+from typing import Dict, List
 
+from fastapi import FastAPI
 
-class ApiError(Exception):
-    def __init__(self, code: str, message: str, status: int = 400):
-        self.code = code
-        self.message = message
-        self.status = status
+from app.core.errors import ApiError, register_exception_handlers
+from app.database import Base, engine
+from app.routers import auth, wishes
 
+_ITEMS_DB: Dict[str, List[dict]] = {"items": []}
 
-@app.exception_handler(ApiError)
-async def api_error_handler(request: Request, exc: ApiError):
-    return JSONResponse(
-        status_code=exc.status,
-        content={"error": {"code": exc.code, "message": exc.message}},
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Wishlist API",
+        version="1.0.0",
     )
 
+    register_exception_handlers(app)
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    # Normalize FastAPI HTTPException into our error envelope
-    detail = exc.detail if isinstance(exc.detail, str) else "http_error"
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": {"code": "http_error", "message": detail}},
-    )
+    @app.on_event("startup")
+    def on_startup() -> None:
+        Base.metadata.create_all(bind=engine)
 
+    @app.get("/health")
+    def health() -> dict:
+        return {"status": "ok"}
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+    @app.post("/items")
+    def create_item(name: str) -> dict:
+        if not name or len(name) > 100:
+            raise ApiError(
+                code="validation_error",
+                message="name must be 1..100 chars",
+                status_code=422,
+            )
 
+        item = {"id": len(_ITEMS_DB["items"]) + 1, "name": name}
+        _ITEMS_DB["items"].append(item)
+        return item
 
-# Example minimal entity (for tests/demo)
-_DB = {"items": []}
+    @app.get("/items/{item_id}")
+    def get_item(item_id: int) -> dict:
+        for it in _ITEMS_DB["items"]:
+            if it["id"] == item_id:
+                return it
 
-
-@app.post("/items")
-def create_item(name: str):
-    if not name or len(name) > 100:
         raise ApiError(
-            code="validation_error", message="name must be 1..100 chars", status=422
+            code="not_found",
+            message="item not found",
+            status_code=404,
         )
-    item = {"id": len(_DB["items"]) + 1, "name": name}
-    _DB["items"].append(item)
-    return item
+
+    app.include_router(auth.router)
+    app.include_router(wishes.router, prefix="/wishes")
+
+    return app
+
+app = create_app()
 
 
-@app.get("/items/{item_id}")
-def get_item(item_id: int):
-    for it in _DB["items"]:
-        if it["id"] == item_id:
-            return it
-    raise ApiError(code="not_found", message="item not found", status=404)
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
