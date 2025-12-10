@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from fastapi.testclient import TestClient
 
+
 def register_and_login(client: TestClient, idx: int = 1) -> dict:
     """
     Вспомогательная функция:
@@ -26,6 +27,7 @@ def register_and_login(client: TestClient, idx: int = 1) -> dict:
     token = r_login.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
+
 def test_create_wish_requires_auth(client: TestClient) -> None:
     resp = client.post(
         "/wishes",
@@ -40,6 +42,7 @@ def test_create_wish_requires_auth(client: TestClient) -> None:
     body = resp.json()
     assert "error" in body
     assert body["error"]["code"] == "http_error"
+
 
 def test_create_and_get_wish(client: TestClient) -> None:
     headers = register_and_login(client, idx=1)
@@ -63,6 +66,7 @@ def test_create_and_get_wish(client: TestClient) -> None:
     got = r_get.json()
     assert got["id"] == wish_id
     assert got["title"] == payload["title"]
+
 
 def test_wishes_pagination_and_owner_only(client: TestClient) -> None:
     headers_user1 = register_and_login(client, idx=1)

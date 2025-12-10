@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+
 def test_register_new_user(client: TestClient) -> None:
     payload = {
         "email": "user1@example.com",

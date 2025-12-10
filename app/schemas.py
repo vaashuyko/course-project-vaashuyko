@@ -9,8 +9,10 @@ class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
 
+
 class UserCreate(UserBase):
     password: str = Field(..., min_length=6, max_length=128)
+
 
 class UserRead(UserBase):
     id: int
@@ -18,13 +20,16 @@ class UserRead(UserBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
 class TokenPayload(BaseModel):
     sub: int
     exp: int
+
 
 class WishBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
@@ -41,6 +46,7 @@ class WishBase(BaseModel):
 class WishCreate(WishBase):
     pass
 
+
 class WishUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     link: Optional[str] = Field(None, max_length=500)
@@ -53,6 +59,7 @@ class WishUpdate(BaseModel):
     notes: Optional[str] = Field(None, max_length=1000)
     is_favorite: Optional[bool] = None
 
+
 class WishRead(WishBase):
     id: int
     owner_id: int
@@ -61,6 +68,7 @@ class WishRead(WishBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class WishListResponse(BaseModel):
     items: list[WishRead]

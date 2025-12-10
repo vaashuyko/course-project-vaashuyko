@@ -9,8 +9,9 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from app.main import app
-from app.database import Base, engine, SessionLocal
+from app.database import Base, SessionLocal, engine  # noqa: E402
+from app.main import app  # noqa: E402
+
 
 @pytest.fixture(scope="session")
 def db_engine():
@@ -20,6 +21,7 @@ def db_engine():
     """
     Base.metadata.create_all(bind=engine)
     yield engine
+
 
 @pytest.fixture(autouse=True)
 def clean_db(db_engine):

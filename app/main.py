@@ -10,6 +10,7 @@ from app.routers import auth, wishes
 
 _ITEMS_DB: Dict[str, List[dict]] = {"items": []}
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Wishlist API",
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(wishes.router, prefix="/wishes")
 
     return app
+
 
 app = create_app()
 

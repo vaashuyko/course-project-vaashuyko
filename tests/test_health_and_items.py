@@ -1,9 +1,11 @@
 from fastapi.testclient import TestClient
 
+
 def test_health_ok(client: TestClient) -> None:
     resp = client.get("/health")
     assert resp.status_code == 200
     assert resp.json() == {"status": "ok"}
+
 
 def test_items_not_found(client: TestClient) -> None:
     resp = client.get("/items/999")
@@ -12,12 +14,14 @@ def test_items_not_found(client: TestClient) -> None:
     assert "error" in body
     assert body["error"]["code"] == "not_found"
 
+
 def test_items_validation_error(client: TestClient) -> None:
     resp = client.post("/items", params={"name": ""})
     assert resp.status_code == 422
     body = resp.json()
     assert "error" in body
     assert body["error"]["code"] == "validation_error"
+
 
 def test_items_create_ok(client: TestClient) -> None:
     resp = client.post("/items", params={"name": "test-item"})

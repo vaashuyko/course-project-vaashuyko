@@ -19,11 +19,14 @@ pwd_context = CryptContext(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
 
 def create_access_token(
     subject: int,
@@ -39,6 +42,7 @@ def create_access_token(
         settings.jwt_secret_key,
         algorithm=settings.jwt_algorithm,
     )
+
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),

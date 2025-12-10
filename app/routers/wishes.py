@@ -12,6 +12,7 @@ from app.database import get_db
 
 router = APIRouter(tags=["wishes"])
 
+
 @router.post(
     "",
     response_model=schemas.WishRead,
@@ -34,6 +35,7 @@ def create_wish(
     db.refresh(wish)
     return wish
 
+
 @router.get("", response_model=schemas.WishListResponse)
 def list_wishes(
     db: Session = Depends(get_db),
@@ -54,10 +56,7 @@ def list_wishes(
     total = query.with_entities(func.count(models.Wish.id)).scalar() or 0
 
     items = (
-        query.order_by(models.Wish.created_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
+        query.order_by(models.Wish.created_at.desc()).offset(offset).limit(limit).all()
     )
 
     return schemas.WishListResponse(
@@ -66,6 +65,7 @@ def list_wishes(
         limit=limit,
         offset=offset,
     )
+
 
 def _get_wish_or_error(
     wish_id: int,
@@ -87,6 +87,7 @@ def _get_wish_or_error(
         )
     return wish
 
+
 @router.get("/{wish_id}", response_model=schemas.WishRead)
 def get_wish(
     wish_id: int,
@@ -95,6 +96,7 @@ def get_wish(
 ) -> schemas.WishRead:
     wish = _get_wish_or_error(wish_id, db, current_user)
     return wish
+
 
 @router.put("/{wish_id}", response_model=schemas.WishRead)
 def update_wish(
@@ -113,6 +115,7 @@ def update_wish(
     db.commit()
     db.refresh(wish)
     return wish
+
 
 @router.delete("/{wish_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_wish(
