@@ -1,0 +1,56 @@
+    docker compose up --build
+[+] Building 4.0s (18/18) FINISHED
+ => [internal] load local bake definitions                                                                                                                                                                                     0.0s
+ => => reading from stdin 600B                                                                                                                                                                                                 0.0s
+ => [internal] load build definition from Dockerfile                                                                                                                                                                           0.1s
+ => => transferring dockerfile: 872B                                                                                                                                                                                           0.0s
+ => resolve image config for docker-image://docker.io/docker/dockerfile:1.7-labs                                                                                                                                               0.9s
+ => CACHED docker-image://docker.io/docker/dockerfile:1.7-labs@sha256:b99fecfe00268a8b556fad7d9c37ee25d716ae08a5d7320e6d51c4dd83246894                                                                                         0.1s
+ => => resolve docker.io/docker/dockerfile:1.7-labs@sha256:b99fecfe00268a8b556fad7d9c37ee25d716ae08a5d7320e6d51c4dd83246894                                                                                                    0.1s
+ => [internal] load metadata for docker.io/library/python:3.12-slim                                                                                                                                                            0.8s
+ => [internal] load .dockerignore                                                                                                                                                                                              0.1s
+ => => transferring context: 191B                                                                                                                                                                                              0.0s
+ => [build 1/4] FROM docker.io/library/python:3.12-slim@sha256:590cad70271b6c1795c6a11fb5c110efca593adbd0d4883cd19c36df6a56467b                                                                                                0.2s
+ => => resolve docker.io/library/python:3.12-slim@sha256:590cad70271b6c1795c6a11fb5c110efca593adbd0d4883cd19c36df6a56467b                                                                                                      0.2s
+ => [internal] load build context                                                                                                                                                                                              0.1s
+ => => transferring context: 1.53kB                                                                                                                                                                                            0.0s
+ => CACHED [build 2/4] WORKDIR /app                                                                                                                                                                                            0.0s
+ => CACHED [runtime 3/7] RUN groupadd -r app && useradd -r -g app app                                                                                                                                                          0.0s
+ => CACHED [build 3/4] COPY requirements.txt .                                                                                                                                                                                 0.0s
+ => CACHED [build 4/4] RUN --mount=type=cache,target=/root/.cache     pip install --upgrade pip &&     pip wheel --wheel-dir=/wheels -r requirements.txt                                                                       0.0s
+ => CACHED [runtime 4/7] COPY --from=build /wheels /wheels                                                                                                                                                                     0.0s
+ => CACHED [runtime 5/7] RUN --mount=type=cache,target=/root/.cache     pip install --no-cache-dir /wheels/*                                                                                                                   0.0s
+ => CACHED [runtime 6/7] COPY app app                                                                                                                                                                                          0.0s
+ => CACHED [runtime 7/7] COPY pyproject.toml requirements*.txt .env.example ./                                                                                                                                                 0.0s
+ => exporting to image                                                                                                                                                                                                         0.4s
+ => => exporting layers                                                                                                                                                                                                        0.0s
+ => => exporting manifest sha256:c2aa0070c3b802d7e71c6c50b1740f18e5a874d96693288f5864873a94d25be9                                                                                                                              0.0s
+ => => exporting config sha256:6273187533c13d6c166484753f6b2b8fcf47fd8e282ea95cef6faab0c3a81d76                                                                                                                                0.0s
+ => => exporting attestation manifest sha256:ecb9e27f536fbfbcaaeaa9ad7bb9be69453133d2b66064ddb000b7fa119564d6                                                                                                                  0.2s
+ => => exporting manifest list sha256:f114b9b7797775d08f3dc27d3c7bc70627223604836f4e9706379e7091a107a4                                                                                                                         0.1s
+ => => naming to docker.io/library/wishlist-api:local                                                                                                                                                                          0.0s
+ => => unpacking to docker.io/library/wishlist-api:local                                                                                                                                                                       0.0s
+ => resolving provenance for metadata file                                                                                                                                                                                     0.0s
+[+] Running 2/2
+ ✔ wishlist-api:local      Built                                                                                                                                                                                               0.0s
+ ✔ Container wishlist-app  Recreated                                                                                                                                                                                           0.5s
+Attaching to wishlist-app, wishlist-db
+wishlist-db  |
+wishlist-db  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+wishlist-db  |
+wishlist-db  | 2025-12-12 08:04:30.897 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+wishlist-db  | 2025-12-12 08:04:30.897 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+wishlist-db  | 2025-12-12 08:04:30.897 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+wishlist-db  | 2025-12-12 08:04:30.931 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+wishlist-db  | 2025-12-12 08:04:30.966 UTC [29] LOG:  database system was interrupted; last known up at 2025-12-12 08:01:30 UTC
+wishlist-db  | 2025-12-12 08:04:31.213 UTC [29] LOG:  database system was not properly shut down; automatic recovery in progress
+wishlist-db  | 2025-12-12 08:04:31.231 UTC [29] LOG:  redo starts at 0/199B990
+wishlist-db  | 2025-12-12 08:04:31.231 UTC [29] LOG:  invalid record length at 0/199B9C8: expected at least 24, got 0
+wishlist-db  | 2025-12-12 08:04:31.231 UTC [29] LOG:  redo done at 0/199B990 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+wishlist-db  | 2025-12-12 08:04:31.267 UTC [27] LOG:  checkpoint starting: end-of-recovery immediate wait
+wishlist-db  | 2025-12-12 08:04:31.393 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.051 s, sync=0.017 s, total=0.143 s; sync files=2, longest=0.009 s, average=0.009 s; distance=0 kB, estimate=0 kB; lsn=0/199B9C8, redo lsn=0/199B9C8
+wishlist-db  | 2025-12-12 08:04:31.413 UTC [1] LOG:  database system is ready to accept connections
+wishlist-app  | INFO:     Started server process [1]
+wishlist-app  | INFO:     Waiting for application startup.
+wishlist-app  | INFO:     Application startup complete.
+wishlist-app  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

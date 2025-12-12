@@ -1,7 +1,6 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyc
 *.so
 *.egg-info/
 dist/
@@ -10,15 +9,18 @@ build/
 .env
 .pytest_cache/
 .coverage
+
 # IDE
 .vscode/
 .idea/
+
 # OS
 .DS_Store
-# other
-.git
-tests
-.github
+
+# Databases / artifacts
 *.db
-.idea
-.vscode
+*.sqlite
+
+# Docker
+htmlcov/
+node_modules/
