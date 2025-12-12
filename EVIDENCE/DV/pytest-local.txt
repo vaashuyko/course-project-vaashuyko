@@ -1,0 +1,2 @@
+    pytest -q
+14 passed, 19 warnings in 2.20s
