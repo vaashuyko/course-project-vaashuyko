@@ -1,0 +1,21 @@
+title = "Wishlist API - gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist local/dev artifacts and non-sensitive placeholders"
+paths = [
+  '''(^|.*/)\.venv/''',
+  '''(^|.*/)venv/''',
+  '''(^|.*/)__pycache__/''',
+  '''(^|.*/)\.pytest_cache/''',
+  '''(^|.*/)\.ruff_cache/''',
+  '''(^|.*/)\.mypy_cache/''',
+  '''(^|.*/)\.git/''',
+  '''(^|.*/)EVIDENCE/''',
+  '''(^|.*/)\.env$''',
+]
+regexes = [
+  '''test-secret-key-for-tests''',
+]
