@@ -1,0 +1,20 @@
+rules:
+  - id: wishlist-uvicorn-reload-true
+    languages: [python]
+    message: "uvicorn.run(..., reload=True): оставляйте reload только для dev; сделайте reload конфигурируемым."
+    severity: WARNING
+    pattern-either:
+      - pattern: uvicorn.run(..., reload=True)
+      - pattern: uvicorn.run(..., reload=True, ...)
+    metadata:
+      category: security
+      technology: [fastapi, uvicorn]
+
+  - id: wishlist-sqlalchemy-create-all-startup
+    languages: [python]
+    message: "Base.metadata.create_all(...) в runtime (startup): риск дрейфа схемы; лучше миграции (Alembic) или явный флаг/условие."
+    severity: INFO
+    pattern: Base.metadata.create_all(...)
+    metadata:
+      category: security
+      technology: [sqlalchemy]
