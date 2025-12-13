@@ -1,0 +1,96 @@
+name: Security - SBOM & SCA (P09)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**/*.py"
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - "policy/waivers.yml"
+      - ".github/workflows/ci-sbom-sca.yml"
+  pull_request:
+    paths:
+      - "**/*.py"
+      - "requirements*.txt"
+      - "pyproject.toml"
+      - "policy/waivers.yml"
+      - ".github/workflows/ci-sbom-sca.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom_sca:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      SYFT_IMAGE: anchore/syft@sha256:63a159108794114992136692c92155c7694f259aca814a92c187a4e025754b00
+      GRYPE_IMAGE: anchore/grype@sha256:7416f2fada8bd8f99095d955a6fed700b714b51ceb8150f838920932954b04aa
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure evidence dirs
+        run: mkdir -p EVIDENCE/P09
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Generate SBOM (Syft, CycloneDX JSON)
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work "$SYFT_IMAGE" \
+            packages dir:. -o cyclonedx-json > EVIDENCE/P09/sbom.json
+
+      - name: SCA scan (Grype from SBOM)
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work "$GRYPE_IMAGE" \
+            sbom:/work/EVIDENCE/P09/sbom.json -o json > EVIDENCE/P09/sca_report.json
+
+      - name: Build SCA summary (severity + top findings + trace)
+        run: |
+          {
+            echo "# P09 - SCA summary"
+            echo
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "## Severity counts"
+            jq -r '
+              [.matches[].vulnerability.severity]
+              | map(ascii_upcase)
+              | group_by(.)
+              | map({(.[0]): length})
+              | add
+            ' EVIDENCE/P09/sca_report.json 2>/dev/null || echo "{}"
+            echo
+            echo "## Top findings (first 15)"
+            jq -r '
+              .matches
+              | map({
+                  id: .vulnerability.id,
+                  severity: (.vulnerability.severity // "UNKNOWN"),
+                  pkg: .artifact.name,
+                  version: .artifact.version
+                })
+              | unique
+              | sort_by(.severity)
+              | reverse
+              | .[:15]
+              | map("- \(.severity): \(.id) — \(.pkg)@\(.version)")
+              | .[]
+            ' EVIDENCE/P09/sca_report.json 2>/dev/null || true
+          } > EVIDENCE/P09/sca_summary.md
+
+      - name: Upload P09 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P09_EVIDENCE
+          path: EVIDENCE/P09
